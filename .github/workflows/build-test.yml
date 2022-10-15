@@ -23,9 +23,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Build and Test
-        uses: deelaa-marketplace/java-build-action@main
-
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
