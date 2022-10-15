@@ -16,7 +16,7 @@ on:
         required: true
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,6 @@ jobs:
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
-          cache: maven
 
       - name: Maven Settings
         uses: whelk-io/maven-settings-xml-action@v20
