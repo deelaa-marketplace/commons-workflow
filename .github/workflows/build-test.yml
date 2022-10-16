@@ -66,12 +66,12 @@ jobs:
 
       - name: Print Details
         shell: bash
-        run: echo "$GITHUB_CONTEXT"
+        run: echo "$MAVEN_SERVER_USERNAME $GITHUB_CONTEXT"
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-          MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
-          MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', secrets.GITHUB_TOKEN) }}
+          MAVEN_SERVER_USERNAME: ${{ github.actor }}
+          MAVEN_SERVER_PASSWORD: ${{ github.token }}
+          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', github.token) }}
 
       - name: Run Tests
         shell: bash
