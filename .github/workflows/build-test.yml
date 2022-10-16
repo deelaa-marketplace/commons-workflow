@@ -37,7 +37,7 @@ jobs:
                 "configuration": {
                   "httpHeaders": {
                     "property": {
-                      "name": "Authorization"
+                      "name": "Authorization",
                       "value": "${env.MAVEN_SERVER_TOKEN}"
                     }
                   }
