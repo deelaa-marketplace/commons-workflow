@@ -50,18 +50,6 @@ jobs:
           repositories: >
             [
               {
-                "id": "central",
-                "name": "lib-releases",
-                "url": "https://repo.maven.apache.org/maven2/",
-                "releases": {
-                  "enabled": "true",
-                  "updatePolicy": "always"
-                },
-                "snapshots": {
-                  "enabled": "false"
-                }
-              },
-              {
                 "id": "bytesafe.dev",
                 "name": "deelaa-qa",
                 "url": "https://deelaa.bytesafe.dev/maven/deelaa-qa/",
@@ -92,8 +80,8 @@ jobs:
         uses: madrapps/jacoco-report@v1.2
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
-          token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: "Test Coverage Report"
-          update-comment: true
+          update-comment: false
           min-coverage-overall: 40
           min-coverage-changed-files: 85
