@@ -58,7 +58,7 @@ jobs:
                   "updatePolicy": "always"
                 },
                 "snapshots": {
-                  "enabled": "false",
+                  "enabled": "true",
                   "updatePolicy": "always"
                 }
               }
