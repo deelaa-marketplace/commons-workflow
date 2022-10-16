@@ -28,7 +28,6 @@ jobs:
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
-          cache: 'maven'
 
       - name: Maven Settings
         uses: whelk-io/maven-settings-xml-action@v20
@@ -50,6 +49,18 @@ jobs:
             ]
           repositories: >
             [
+              {
+                "id": "central",
+                "name": "lib-releases",
+                "url": "http://repo1.maven.org/maven2",
+                "releases": {
+                  "enabled": "true",
+                  "updatePolicy": "always"
+                },
+                "snapshots": {
+                  "enabled": "false"
+                }
+              },
               {
                 "id": "bytesafe.dev",
                 "name": "deelaa-qa",
@@ -82,5 +93,7 @@ jobs:
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.ACCESS_TOKEN }}
+          title: "Test Coverage Report"
+          update-comment: true
           min-coverage-overall: 40
           min-coverage-changed-files: 85
