@@ -35,7 +35,14 @@ jobs:
               {
                 "id": "github",
                 "username": "${env.MAVEN_SERVER_USERNAME}",
-                "password": "${env.MAVEN_SERVER_PASSWORD}"
+                "password": "${env.MAVEN_SERVER_PASSWORD}",
+                "configuration": {
+                  "httpConfiguration": {
+                    "all": {
+                      "usePreemptive": "true"
+                    }
+                  }
+                }
               }
             ]
           repositories: >
@@ -45,9 +52,11 @@ jobs:
                 "name": "commons-lib",
                 "url": "https://maven.pkg.github.com/deelaa-marketplace/commons-lib",
                 "releases": {
+                  "enabled": "true",
                   "updatePolicy": "always"
                 },
                 "snapshots": {
+                  "enabled": "true",
                   "updatePolicy": "always"
                 }
               }
@@ -61,7 +70,7 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ github.actor }}
+          MAVEN_SERVER_USERNAME: seun-ogunjimi
           MAVEN_SERVER_PASSWORD: ${{ github.token }}
 
       - name: Add Coverage Report
@@ -71,6 +80,6 @@ jobs:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Test Coverage Report"
-          update-comment: false
+          update-comment: true
           min-coverage-overall: 40
           min-coverage-changed-files: 85
