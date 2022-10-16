@@ -5,14 +5,13 @@ on:
     inputs:
       MAVEN_SERVER_USERNAME:
         type: string
-        default: ${{ github.actor }}
+        default: ${{ env.GITHUB_ACTOR }}
       java-version:
         type: string
         default: "17"
     secrets:
       MAVEN_SERVER_PASSWORD:
         default: ${{ github.token }}
-        required: true
 
 jobs:
   test:
