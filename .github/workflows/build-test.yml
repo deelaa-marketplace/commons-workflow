@@ -9,6 +9,9 @@ on:
       java-version:
         type: string
         default: "17"
+      workspace:
+        required: true
+        type: string
     secrets:
       ACCESS_TOKEN:
         required: true
@@ -79,7 +82,7 @@ jobs:
         id: jacoco
         uses: madrapps/jacoco-report@v1.2
         with:
-          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          paths: ${{ inputs.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.ACCESS_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 85
