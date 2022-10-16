@@ -33,11 +33,12 @@ jobs:
             [
               {
                 "id": "github",
+                "username": "${env.MAVEN_SERVER_USERNAME}",
+                "password": "${env.MAVEN_SERVER_PASSWORD}",
                 "configuration": {
-                  "httpHeaders": {
-                    "property": {
-                      "name": "Authorization",
-                      "value": "${env.MAVEN_SERVER_TOKEN}"
+                  "httpConfiguration": {
+                    "all": {
+                      "usePreemptive": "true"
                     }
                   }
                 }
