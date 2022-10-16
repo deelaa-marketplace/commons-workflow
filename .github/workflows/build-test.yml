@@ -45,11 +45,9 @@ jobs:
                 "name": "commons-lib",
                 "url": "https://maven.pkg.github.com/deelaa-marketplace/commons-lib",
                 "releases": {
-                  "enabled": "true",
                   "updatePolicy": "always"
                 },
                 "snapshots": {
-                  "enabled": "true",
                   "updatePolicy": "always"
                 }
               }
