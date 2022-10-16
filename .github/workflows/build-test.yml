@@ -3,8 +3,6 @@ name: "Build"
 on:
   workflow_call:
     inputs:
-      maven-server-username:
-        required: true
       java-version:
         type: string
         default: "17"
@@ -12,6 +10,8 @@ on:
         type: boolean
         default: true
     secrets:
+      maven-server-username:
+        required: true
       maven-server-password:
         required: true
 
