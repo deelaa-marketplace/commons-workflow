@@ -70,7 +70,7 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: seun.ogunjimi
+          MAVEN_SERVER_USERNAME: seun-ogunjimi
           MAVEN_SERVER_PASSWORD: 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
 
       - name: Add Coverage Report
