@@ -8,9 +8,9 @@ on:
         default: "17"
     secrets:
       MAVEN_SERVER_USERNAME:
-        type: string
+        required: true
       MAVEN_SERVER_PASSWORD:
-        required: false
+        required: true
 
 jobs:
   test:
