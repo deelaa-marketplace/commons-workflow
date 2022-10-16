@@ -3,13 +3,16 @@ name: "Build"
 on:
   workflow_call:
     inputs:
+      maven-server-username:
+        required: true
       java-version:
         type: string
         default: "17"
+      update-coverage-comment:
+        type: boolean
+        default: true
     secrets:
-      MAVEN_SERVER_USERNAME:
-        required: true
-      MAVEN_SERVER_PASSWORD:
+      maven-server-password:
         required: true
 
 jobs:
@@ -66,30 +69,20 @@ jobs:
         shell: bash
         run: cat /home/runner/.m2/settings.xml
 
-      - name: Print Details
-        shell: bash
-        run: echo "$MAVEN_SERVER_USERNAME $GITHUB_CONTEXT"
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-          MAVEN_SERVER_USERNAME: ${{ github.actor }}
-          MAVEN_SERVER_PASSWORD: ${{ github.token }}
-          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', github.token) }}
-
       - name: Run Tests
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ secrets.MAVEN_SERVER_USERNAME }}
-          MAVEN_SERVER_PASSWORD: ${{ secrets.MAVEN_SERVER_PASSWORD }}
-          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', github.token) }}
+          MAVEN_SERVER_USERNAME: ${{ inputs.maven-server-username }}
+          MAVEN_SERVER_PASSWORD: ${{ secrets.maven-server-password }}
 
-      - name: Add Coverage Report
+      - name: Add Test Coverage Report
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Test Coverage Report"
-          update-comment: true
+          update-comment: ${{ inputs.update-coverage-comment }}
           min-coverage-overall: 40
           min-coverage-changed-files: 85
