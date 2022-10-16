@@ -34,12 +34,11 @@ jobs:
             [
               {
                 "id": "github",
-                "username": "${env.MAVEN_SERVER_USERNAME}",
-                "password": "${env.MAVEN_SERVER_PASSWORD}",
                 "configuration": {
-                  "httpConfiguration": {
-                    "all": {
-                      "usePreemptive": "true"
+                  "httpHeaders": {
+                    "property": {
+                      "name": "Authorization"
+                      "value": "${env.MAVEN_SERVER_TOKEN}"
                     }
                   }
                 }
@@ -72,6 +71,7 @@ jobs:
         env:
           MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', secrets.GITHUB_TOKEN) }}
 
       - name: Add Coverage Report
         id: jacoco
