@@ -67,7 +67,7 @@ jobs:
 
       - name: Print Details
         shell: bash
-        run: echo ${env.MAVEN_SERVER_TOKEN} ${env.MAVEN_SERVER_PASSWORD} ${env.MAVEN_SERVER_USERNAME}
+        run: echo "$MAVEN_SERVER_TOKEN  -  $MAVEN_SERVER_USERNAME"
         env:
           MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
