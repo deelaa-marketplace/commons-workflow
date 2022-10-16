@@ -5,7 +5,6 @@ on:
     inputs:
       MAVEN_SERVER_USERNAME:
         type: string
-        default: ${{ github.actor }}
       java-version:
         type: string
         default: "17"
@@ -67,8 +66,9 @@ jobs:
 
       - name: Print Details
         shell: bash
-        run: echo "$MAVEN_SERVER_TOKEN  -  $MAVEN_SERVER_USERNAME"
+        run: echo "$GITHUB_CONTEXT"
         env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
           MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', secrets.GITHUB_TOKEN) }}
