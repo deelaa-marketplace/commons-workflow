@@ -35,7 +35,7 @@ jobs:
               {
                 "id": "github",
                 "username": "${env.MAVEN_SERVER_USERNAME}",
-                "password": "${env.MAVEN_SERVER_PASSWORD}",
+                "password": "${env.MAVEN_SERVER_PASSWORD}"
               }
             ]
           repositories: >
