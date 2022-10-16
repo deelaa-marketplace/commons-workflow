@@ -70,7 +70,7 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ GITHUB_ACTOR }}
+          MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add Coverage Report
