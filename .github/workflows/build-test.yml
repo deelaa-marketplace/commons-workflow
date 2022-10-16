@@ -65,6 +65,14 @@ jobs:
         shell: bash
         run: cat /home/runner/.m2/settings.xml
 
+      - name: Print Details
+        shell: bash
+        run: echo ${env.MAVEN_SERVER_TOKEN} ${env.MAVEN_SERVER_PASSWORD} ${env.MAVEN_SERVER_USERNAME}
+        env:
+          MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
+          MAVEN_SERVER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_SERVER_TOKEN: ${{ format('{0} {1}','Bearer', secrets.GITHUB_TOKEN) }}
+
       - name: Run Tests
         shell: bash
         run: mvn test
