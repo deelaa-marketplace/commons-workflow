@@ -5,7 +5,7 @@ on:
     inputs:
       MAVEN_SERVER_USERNAME:
         type: string
-        default: ${{ env.GITHUB_ACTOR }}
+        default: ${{ github.actor }}
       java-version:
         type: string
         default: "17"
