@@ -75,6 +75,7 @@ jobs:
 
       - name: Run Tests
         shell: bash
+        if: false
         run: mvn test
         env:
           MAVEN_SERVER_USERNAME: ${{ env.GITHUB_ACTOR }}
@@ -83,6 +84,7 @@ jobs:
 
       - name: Add Coverage Report
         id: jacoco
+        if: false
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
