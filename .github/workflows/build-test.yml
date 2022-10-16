@@ -5,14 +5,13 @@ on:
     inputs:
       MAVEN_SERVER_USERNAME:
         type: string
-        default: "bytesafe"
+        default: ${{ GITHUB_ACTOR }}
       java-version:
         type: string
         default: "17"
     secrets:
-      ACCESS_TOKEN:
-        required: true
       MAVEN_SERVER_PASSWORD:
+        default: ${{ github.token }}
         required: true
 
 jobs:
@@ -35,7 +34,7 @@ jobs:
           servers: >
             [
               {
-                "id": "bytesafe.dev",
+                "id": "github",
                 "username": "${env.MAVEN_SERVER_USERNAME}",
                 "password": "${env.MAVEN_SERVER_PASSWORD}",
                 "configuration": {
@@ -50,9 +49,9 @@ jobs:
           repositories: >
             [
               {
-                "id": "bytesafe.dev",
-                "name": "deelaa-qa",
-                "url": "https://deelaa.bytesafe.dev/maven/deelaa-qa/",
+                "id": "github",
+                "name": "commons-lib",
+                "url": "https://maven.pkg.github.com/deelaa-marketplace/commons-lib",
                 "releases": {
                   "enabled": "true",
                   "updatePolicy": "always"
@@ -77,7 +76,7 @@ jobs:
 
       - name: Add Coverage Report
         id: jacoco
-        uses: madrapps/jacoco-report@v1.2
+        uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
