@@ -11,7 +11,7 @@ on:
         default: "17"
     secrets:
       MAVEN_SERVER_PASSWORD:
-        default: ${{ github.token }}
+        required: false
 
 jobs:
   test:
@@ -70,8 +70,8 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ inputs.MAVEN_SERVER_USERNAME }}
-          MAVEN_SERVER_PASSWORD: ${{ secrets.MAVEN_SERVER_PASSWORD }}
+          MAVEN_SERVER_USERNAME: ${{ github.actor }}
+          MAVEN_SERVER_PASSWORD: ${{ github.token }}
 
       - name: Add Coverage Report
         id: jacoco
