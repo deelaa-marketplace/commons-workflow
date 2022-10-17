@@ -14,7 +14,7 @@ on:
         default: true
       blind-deployment:
         type: boolean
-        default: true
+        default: false
 
 jobs:
   deploy-to-github:
@@ -46,7 +46,7 @@ jobs:
       - name: Print version
         shell: bash
         run: |-
-          echo "package_version=${{steps.version.outputs.package_version}}" \
+          echo "package_version=${{ steps.version.outputs.package_version }}" \
           echo "release_version=${{ steps.version.outputs.release_version }}" 
 
       - name: Deploy
