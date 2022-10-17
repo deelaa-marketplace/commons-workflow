@@ -1,4 +1,4 @@
-name: "Build"
+name: "Build And Test"
 
 on:
   workflow_call:
@@ -9,10 +9,6 @@ on:
       update-coverage-comment:
         type: boolean
         default: true
-
-env:
-  GITHUB_ACTOR: ${{ github.actor }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   test:
@@ -28,7 +24,6 @@ jobs:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
 
-
       - name: Maven Settings
         uses: s4u/maven-settings-action@v2.7.0
 
@@ -40,8 +35,6 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ secrets.maven-server-username }}
-          MAVEN_SERVER_PASSWORD: ${{ secrets.maven-server-password }}
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
 

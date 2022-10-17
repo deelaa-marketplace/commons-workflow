@@ -1,0 +1,57 @@
+name: "Publish Package"
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        type: string
+        default: "17"
+      skip-snapshots:
+        type: boolean
+        default: true
+      allow-version-mismatch:
+        type: boolean
+        default: true
+
+jobs:
+  deploy-to-github:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      package_version: ${{ steps.version.outputs.package_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{inputs.java-version}}
+          distribution: "temurin"
+          cache: maven
+
+      - name: Maven Settings
+        uses: s4u/maven-settings-action@v2.7.0
+
+      - name: Print Maven Settings
+        shell: bash
+        run: cat /home/runner/.m2/settings.xml
+
+      - name: Determine version
+        id: version
+        run: |-
+        echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+        echo  "release_version=${{ github.event.release.tag_name }}"
+
+      - name: Deploy
+        if: inputs.allow-version-mismatch || github.event.release.tag_name == steps.version.outputs.package_version
+        shell: bash
+        run: >-
+        mvn --batch-mode -DskipTests -DuseGitHubPackages
+        -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
+        -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
+        clean deploy
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
