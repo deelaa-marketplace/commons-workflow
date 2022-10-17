@@ -41,7 +41,10 @@ jobs:
       - name: Determine version
         id: version
         shell: bash
-        run: >- 
-        echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT \
-        echo "release_version=${{ github.event.release.tag_name }}" \
-        echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+        run: |- 
+          echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT \
+          echo "release_version=$RELEASE_VERSION" \
+          echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+        with:
+          RELEASE_VERSION: ${{ github.event.release.tag_name }}
+
