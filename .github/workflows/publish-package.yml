@@ -50,7 +50,7 @@ jobs:
           echo "release_version=${{ steps.version.outputs.release_version }}" 
 
       - name: Deploy
-        if: inputs.auto-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version)
+        if: ${{ inputs.auto-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests
@@ -62,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
 
       - name: Deploy::Blind
-          if: !inputs.auto-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version)
+          if: ${{ !inputs.auto-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
           shell: bash
           run: >-
             mvn --batch-mode -DskipTests
