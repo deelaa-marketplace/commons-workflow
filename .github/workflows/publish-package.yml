@@ -14,10 +14,10 @@ on:
         default: true
       blind-deployment:
         type: boolean
-        default: false
+        default: true
 
 jobs:
-  deploy-to-github:
+  publish-package:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -50,21 +50,12 @@ jobs:
           echo "release_version=${{ steps.version.outputs.release_version }}" 
 
       - name: Deploy
-        if: ${{ inputs.blind-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
-        shell: bash
-        run: >-
-          echo "here"
-        env:
-          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
-          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
-
-      - name: "Deploy :: Blind"
-        if: ${{ !(inputs.blind-deployment) && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
+        if: ${{ inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version }}
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests
           -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
-          clean deploy
+           deploy
         env:
-          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
-          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
