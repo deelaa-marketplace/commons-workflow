@@ -47,7 +47,6 @@ jobs:
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
 
       - name: Print version
-        id: version
         shell: bash
         run: |-
           echo "release_version=${{ github.event.release.tag_name }}" \
