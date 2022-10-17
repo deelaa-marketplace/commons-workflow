@@ -31,9 +31,6 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Maven Settings
-        uses: s4u/maven-settings-action@v2.7.0
-
       - name: Print Maven Settings
         shell: bash
         run: cat /home/runner/.m2/settings.xml
@@ -43,21 +40,20 @@ jobs:
         shell: bash
         run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT \
-          echo "release_version=${{ github.event.release.tag_name }}" \
-          echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+          echo "release_version=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT \
 
       - name: Print version
         shell: bash
         run: |-
-          echo "release_version=${{ github.event.release.tag_name }}" \
-          echo "package_version=${{steps.version.outputs.package_version}}"
+          echo "package_version=${{steps.version.outputs.package_version}}" \
+          release_version=${{ steps.version.outputs.release_version }} 
 
       - name: Deploy
-        if: inputs.allow-version-mismatch || github.event.release.tag_name == steps.version.outputs.package_version
+        if: inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version
         shell: bash
         run: >-
-          mvn --batch-mode -DskipTests -DuseGitHubPackages
-          -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
+          mvn --batch-mode -DskipTests
+          -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
           -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
           clean deploy
         env:
