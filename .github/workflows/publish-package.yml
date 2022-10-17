@@ -55,7 +55,7 @@ jobs:
         if: inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version
         shell: bash
         run: >-
-          if ( ${{ inputs.auto-deployment }} ); then \
+          if [[ ${{ inputs.auto-deployment }} == true ]]; then \
               mvn --batch-mode -DskipTests
               -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
               -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
