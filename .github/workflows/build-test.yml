@@ -14,6 +14,9 @@ on:
         required: true
       maven-server-password:
         required: true
+env:
+  GITHUB_ACTOR: ${{ github.actor }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   test:
