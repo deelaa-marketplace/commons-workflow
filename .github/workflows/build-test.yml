@@ -5,7 +5,7 @@ on:
     inputs:
       java-version:
         type: string
-        default: "18"
+        default: "17"
       update-coverage-comment:
         type: boolean
         default: true
@@ -28,42 +28,9 @@ jobs:
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
-          cache: maven
 
       - name: Maven Settings
-        uses: whelk-io/maven-settings-xml-action@v20
-        with:
-          servers: >
-            [
-              {
-                "id": "github",
-                "username": "${env.MAVEN_SERVER_USERNAME}",
-                "password": "${env.MAVEN_SERVER_PASSWORD}",
-                "configuration": {
-                  "httpConfiguration": {
-                    "all": {
-                      "usePreemptive": "true"
-                    }
-                  }
-                }
-              }
-            ]
-          repositories: >
-            [
-              {
-                "id": "github",
-                "name": "commons-lib",
-                "url": "https://maven.pkg.github.com/deelaa-marketplace/commons-lib",
-                "releases": {
-                  "enabled": "true",
-                  "updatePolicy": "always"
-                },
-                "snapshots": {
-                  "enabled": "true",
-                  "updatePolicy": "always"
-                }
-              }
-            ]
+        uses: s4u/maven-settings-action@v2.7.0
 
       - name: Print Maven Settings
         shell: bash
@@ -73,7 +40,7 @@ jobs:
         shell: bash
         run: mvn test
         env:
-          MAVEN_SERVER_USERNAME: ${{ inputs.maven-server-username }}
+          MAVEN_SERVER_USERNAME: ${{ secrets.maven-server-username }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.maven-server-password }}
 
       - name: Add Test Coverage Report
