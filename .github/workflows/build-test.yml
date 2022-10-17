@@ -9,11 +9,7 @@ on:
       update-coverage-comment:
         type: boolean
         default: true
-    secrets:
-      maven-server-username:
-        required: true
-      maven-server-password:
-        required: true
+
 env:
   GITHUB_ACTOR: ${{ github.actor }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,6 +28,7 @@ jobs:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
 
+
       - name: Maven Settings
         uses: s4u/maven-settings-action@v2.7.0
 
@@ -45,6 +42,8 @@ jobs:
         env:
           MAVEN_SERVER_USERNAME: ${{ secrets.maven-server-username }}
           MAVEN_SERVER_PASSWORD: ${{ secrets.maven-server-password }}
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
 
       - name: Add Test Coverage Report
         id: jacoco
