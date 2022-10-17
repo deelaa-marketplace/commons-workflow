@@ -50,7 +50,7 @@ jobs:
           echo "release_version=${{ steps.version.outputs.release_version }}" 
 
       - name: Deploy
-        if: true && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version)
+        if: inputs.blind-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version)
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests
@@ -62,12 +62,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
 
       - name: "Deploy Blind"
-          if: ${{ false && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
-          shell: bash
-          run: >-
-            mvn --batch-mode -DskipTests
-            -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
-            clean deploy
-          env:
-            GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
-            GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+        if: !inputs.blind-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version)
+        shell: bash
+        run: >-
+          mvn --batch-mode -DskipTests
+          -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
+          clean deploy
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
