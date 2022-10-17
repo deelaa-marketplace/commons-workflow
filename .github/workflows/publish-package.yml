@@ -53,10 +53,7 @@ jobs:
         if: ${{ inputs.blind-deployment && (inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version) }}
         shell: bash
         run: >-
-          mvn --batch-mode -DskipTests
-          -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${{ github.repository }}
-          -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
-          clean deploy
+          echo "here"
         env:
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
