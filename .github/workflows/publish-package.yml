@@ -16,7 +16,7 @@ on:
 jobs:
   deploy-to-github:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     outputs:
       package_version: ${{ steps.version.outputs.package_version }}
 
@@ -41,9 +41,26 @@ jobs:
       - name: Determine version
         id: version
         shell: bash
-        run: >-
+        run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT \
           echo "release_version=${{ github.event.release.tag_name }}" \
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
-       
 
+      - name: Print version
+        id: version
+        shell: bash
+        run: |-
+          echo "release_version=${{ github.event.release.tag_name }}" \
+          echo "package_version=${{steps.version.outputs.package_version}}"
+
+      - name: Deploy
+        if: inputs.allow-version-mismatch || github.event.release.tag_name == steps.version.outputs.package_version
+        shell: bash
+        run: >-
+          mvn --batch-mode -DskipTests -DuseGitHubPackages
+          -DaltDeploymentRepository=github::https://maven.pkg.github.com/${{ github.repository }}
+          -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
+          clean deploy
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
