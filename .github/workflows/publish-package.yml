@@ -54,8 +54,8 @@ jobs:
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests
-          -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }}
-           deploy
+          -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
+          deploy
         env:
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
