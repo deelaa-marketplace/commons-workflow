@@ -24,9 +24,7 @@ jobs:
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
-
-      - name: Maven Settings
-        uses: s4u/maven-settings-action@v2.7.0
+          cache: maven
 
       - name: Print Maven Settings
         shell: bash
@@ -41,6 +39,7 @@ jobs:
 
       - name: Add Test Coverage Report
         id: jacoco
+        if: ${{ github.event_name=='pull_request' ||  github.event_name=='push' }}
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml

@@ -12,9 +12,6 @@ on:
       skip-snapshots:
         type: boolean
         default: true
-      blind-deployment:
-        type: boolean
-        default: true
 
 jobs:
   publish-package:
@@ -41,7 +38,7 @@ jobs:
         shell: bash
         run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT \
-          echo "release_version=${{ github.event.release.tag_name }}#v" >> $GITHUB_OUTPUT \
+          echo "release_version=${{ github.event.release.tag_name }}#v" >> $GITHUB_OUTPUT
 
       - name: Print version
         shell: bash
@@ -49,7 +46,7 @@ jobs:
           echo "package_version=${{ steps.version.outputs.package_version }}" \
           echo "release_version=${{ steps.version.outputs.release_version }}" 
 
-      - name: Deploy
+      - name: Publish
         if: ${{ inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version }}
         shell: bash
         run: >-
