@@ -54,5 +54,5 @@ jobs:
           -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
           deploy
         env:
-          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: "seun-ogunjimi"
+          GITHUB_TOKEN: ${{ secrets.B }}
