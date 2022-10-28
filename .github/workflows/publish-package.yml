@@ -17,8 +17,6 @@ jobs:
   publish-package:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    permissions: write-all
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -55,5 +53,5 @@ jobs:
           -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
           deploy
         env:
-          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
