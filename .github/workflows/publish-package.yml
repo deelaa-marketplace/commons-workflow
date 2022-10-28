@@ -17,6 +17,17 @@ jobs:
   publish-package:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      actions: write
+      checks: write
+      contents: write
+      deployments: write
+      issues: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
 
     steps:
       - name: Checkout
@@ -54,5 +65,5 @@ jobs:
           -Dmaven.deploy.skip=${{ inputs.skip-snapshots && 'snapshots' || 'false' }} 
           deploy
         env:
-          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
-          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+          GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
