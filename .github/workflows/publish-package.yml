@@ -17,17 +17,7 @@ jobs:
   publish-package:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    permissions:
-      actions: write
-      checks: write
-      contents: write
-      deployments: write
-      issues: write
-      packages: write
-      pull-requests: write
-      repository-projects: write
-      security-events: write
-      statuses: write
+    permissions: write-all
 
     steps:
       - name: Checkout
