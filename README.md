@@ -68,4 +68,4 @@ Sample: [order-service](../order-service)
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT) © [Oluwaseun Ogunjimi](). Released under the MIT license. 
+[MIT](https://opensource.org/licenses/MIT) © [Oluwaseun Ogunjimi](https://github.com/seun-ogunjimi). Released under the MIT license. 
