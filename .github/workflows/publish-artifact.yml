@@ -1,0 +1,96 @@
+name: Publish Artifacts
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        type: string
+        default: "17"
+      api-files:
+        type: string
+        default: "src/main/resources/api-specification/"
+      messages-files:
+        type: string
+        default: "src/main/resources/messages/"
+      target-repository:
+        type: string
+        default: "maven-central"
+
+jobs:
+  publish-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+          id: changeFilter
+          with:
+            filters: |
+              api:
+                - "${{ inputs.api-files }}**"
+              messages:
+                - "${{ inputs.messages-files }}**"
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: "temurin"
+          cache: maven
+
+      - name: Determine Artifact Details
+          id: artifact
+          shell: bash
+          run: |-
+            echo "project_groupId=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)" >> $GITHUB_OUTPUT 
+            echo "project_artifactId=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_OUTPUT
+            echo "project_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+      - name: Bundle API
+        if: steps.change_filter.outputs.api == 'true'
+        uses: vimtor/action-zip@v1
+        with:
+          files: ${{ inputs.api-files }}
+          dest: ${{ github.event.repository.name }}-api.zip
+
+      - name: Publish API
+        if: steps.change_filter.outputs.api == 'true'
+        shell: bash
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+        run: >-
+          mvn deploy:deploy-file 
+          -DgroupId="${{ steps.artifact.outputs.project_groupId }}"
+          -DartifactId="${{ steps.artifact.outputs.project_artifactId }}-api"
+          -Dversion="${{ steps.artifact.outputs.project_version }}-${GITHUB_SHA:0:7}"
+          -Dpackaging="zip"
+          -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-api.zip"
+          -DrepositoryId="github"
+          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"
+
+      - name: Bundle Messages
+        if: steps.change_filter.outputs.messages == 'true'
+        uses: vimtor/action-zip@v1
+        with:
+          files: ${{ inputs.messages-files }}
+          dest: ${{ github.event.repository.name }}-messaging.zip
+
+
+      - name: Publish Messages
+        if: steps.change_filter.outputs.messages == 'true'
+        shell: bash
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+        run: >-
+          mvn deploy:deploy-file 
+          -DgroupId="${{ steps.artifact.outputs.project_groupId }}"
+          -DartifactId="${{ steps.artifact.outputs.project_artifactId }}-messaging"
+          -Dversion="${{ steps.artifact.outputs.project_version }}-${GITHUB_SHA:0:7}"
+          -Dpackaging="zip"
+          -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-messaging.zip"
+          -DrepositoryId="github"
+          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"

@@ -63,7 +63,7 @@ jobs:
     secrets: inherit
 ```
 
-###  TL;DR
+### TL;DR
 Sample: [order-service](../order-service)
 
 ## License
