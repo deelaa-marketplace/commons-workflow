@@ -1,7 +1,5 @@
 name: Deploy to ECS Test Cluster
 
-name: "Build And Test"
-
 on:
   workflow_call:
     inputs:

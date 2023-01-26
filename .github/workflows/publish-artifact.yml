@@ -41,12 +41,12 @@ jobs:
           cache: maven
 
       - name: Determine Artifact Details
-          id: artifact
-          shell: bash
-          run: |-
-            echo "project_groupId=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)" >> $GITHUB_OUTPUT 
-            echo "project_artifactId=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_OUTPUT
-            echo "project_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+        id: artifact
+        shell: bash
+        run: |-
+          echo "project_groupId=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)" >> $GITHUB_OUTPUT 
+          echo "project_artifactId=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_OUTPUT
+          echo "project_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Bundle API
         if: steps.changes.outputs.api == 'true'
