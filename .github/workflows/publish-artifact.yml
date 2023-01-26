@@ -25,13 +25,13 @@ jobs:
         uses: actions/checkout@v3
 
       - uses: dorny/paths-filter@v2
-          id: changeFilter
-          with:
-            filters: |
-              api:
-                - "${{ inputs.api-files }}**"
-              messages:
-                - "${{ inputs.messages-files }}**"
+        id: changes
+        with:
+          filters: |
+            api:
+              - "${{ inputs.api-files }}**"
+            messages:
+              - "${{ inputs.messages-files }}**"
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -49,14 +49,14 @@ jobs:
             echo "project_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
 
       - name: Bundle API
-        if: steps.change_filter.outputs.api == 'true'
+        if: steps.changes.outputs.api == 'true'
         uses: vimtor/action-zip@v1
         with:
           files: ${{ inputs.api-files }}
           dest: ${{ github.event.repository.name }}-api.zip
 
       - name: Publish API
-        if: steps.change_filter.outputs.api == 'true'
+        if: steps.changes.outputs.api == 'true'
         shell: bash
         env:
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
@@ -72,7 +72,7 @@ jobs:
           -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"
 
       - name: Bundle Messages
-        if: steps.change_filter.outputs.messages == 'true'
+        if: steps.changes.outputs.messages == 'true'
         uses: vimtor/action-zip@v1
         with:
           files: ${{ inputs.messages-files }}
@@ -80,7 +80,7 @@ jobs:
 
 
       - name: Publish Messages
-        if: steps.change_filter.outputs.messages == 'true'
+        if: steps.changes.outputs.messages == 'true'
         shell: bash
         env:
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
