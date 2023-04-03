@@ -68,8 +68,8 @@ jobs:
         run: |
           # Build a docker image and push it to ECR so that it can be deployed to ECS.
           image = $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=$image
-          echo "image=$image" >> $GITHUB_OUTPUT
+          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${image}
+          echo "image=${image}" >> $GITHUB_OUTPUT
 
       - name: Download task definition
         run: |
