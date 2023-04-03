@@ -1,0 +1,109 @@
+name: Release to ECS
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        type: string
+        default: "17"
+      aws-region:
+        type: string
+        default: "eu-west-1"
+      ecr-repository:
+        type: string
+        required: false
+      ecs-cluster:
+        type: string
+        required: true
+      ecs-service:
+        type: string
+        required: false
+      ecs-task-container:
+        type: string
+        required: false
+      latest-release:
+        type: boolean
+        default: true
+      release-version:
+        type: string
+        required: false
+
+env:
+  AWS_REGION: ${{ inputs.aws-region }}
+  ECR_REPOSITORY: ${{ inputs.ecr-repository || github.event.repository.name }}
+  ECS_SERVICE: ${{ inputs.ecs-service || github.event.repository.name }}
+  ECS_CLUSTER: ${{ inputs.ecs-cluster }}
+  ECS_TASK_DEFINITION: "task-definition.json"
+  CONTAINER_NAME: ${{ inputs.ecs-task-container || github.event.repository.name }}
+  IMAGE_TAG: ${{ inputs.image-tag || github.event.repository.name }}
+
+obs:
+  deploy-release:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Find and Tag Image
+        id: get-image
+        shell: bash
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          RELEASE_TAG: ${{ inputs.release-version }}
+          LATEST_RELEASE: ${{ inputs.latest-release }}
+        run: |
+          if [ "$LATEST_RELEASE" == true ]; then
+            LATEST_TAG=$(aws ecr describe-images --repository-name ${ECR_REPOSITORY} --query 'reverse(sort_by(imageDetails,& imagePushedAt))[0].imageTags[0]' --output text)
+            if [ -z "$RELEASE_TAG" ]; then
+              MANIFEST=$(aws ecr batch-get-image --repository-name ${ECR_REPOSITORY} --image-ids imageTag=$LATEST_TAG --output json | jq --raw-output --join-output '.images[0].imageManifest')
+              aws ecr put-image --repository-name ${ECR_REPOSITORY} --image-tag $RELEASE_TAG --image-manifest "$MANIFEST"
+              aws ecs describe-task-definition --task-definition ${{ env.ECS_CLUSTER }}-${{ env.ECS_SERVICE }} --query taskDefinition > ${{ env.ECS_TASK_DEFINITION }}
+              echo "Tag Latest Image as version: $RELEASE_TAG"
+            else
+              RELEASE_TAG=$LATEST_TAG
+            fi
+          elif [ ! -z "$RELEASE_TAG" ]; then
+            RELEASE_TAG_ARRAY=$(aws ecr describe-images --repository-name ${ECR_REPOSITORY} --image-ids imageTag=$RELEASE_TAG --query 'reverse(sort_by(imageDetails,& imagePushedAt))[*].imageTags[*]' --output json | jq  'flatten')
+            echo "Found release version: $RELEASE_TAG_ARRAY"
+          else 
+            echo "At least one of 'latest-release' or 'release-version' param is required"
+            EXIT 2
+          fi
+          release_image = $ECR_REGISTRY/$ECR_REPOSITORY:$RELEASE_TAG
+          echo "$release_image"
+          echo "image=$release_image" >> $GITHUB_OUTPUT
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_CLUSTER }}-${{ env.ECS_SERVICE }} --query taskDefinition > ${{ env.ECS_TASK_DEFINITION }}
+
+      - name: Add image ID to Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.get-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        if: ${{ false }}
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

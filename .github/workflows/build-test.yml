@@ -39,7 +39,7 @@ jobs:
 
       - name: Add Test Coverage Report
         id: jacoco
-        if: ${{ github.event_name=='pull_request' ||  github.event_name=='push' }}
+        if: contains(fromJSON('["push", "pull_request"]'), github.event_name)
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml

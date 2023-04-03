@@ -1,4 +1,4 @@
-name: Deploy to ECS Test Cluster
+name: Deploy to ECS
 
 on:
   workflow_call:
@@ -6,29 +6,49 @@ on:
       java-version:
         type: string
         default: "17"
-      update-coverage-comment:
-        type: boolean
-        default: true
+      aws-region:
+        type: string
+        default: "eu-west-1"
+      ecr-repository:
+        type: string
+        required: false
+      ecs-cluster:
+        type: string
+        required: true
+      ecs-service:
+        type: string
+        required: false
+      ecs-task-container:
+        type: string
+        required: false
 
 env:
-  AWS_REGION: eu-west-1
-  ECR_REPOSITORY: order-service
-  ECS_SERVICE: order-service
-  ECS_CLUSTER: test
-  ECS_TASK_DEFINITION: task-definition.json
-  CONTAINER_NAME: order-service
+  AWS_REGION: ${{ inputs.aws-region }}
+  ECR_REPOSITORY: ${{ inputs.ecr-repository || github.event.repository.name }}
+  ECS_SERVICE: ${{ inputs.ecs-service || github.event.repository.name }}
+  ECS_CLUSTER: ${{ inputs.ecs-cluster }}
+  ECS_TASK_DEFINITION: "task-definition.json"
+  CONTAINER_NAME: ${{ inputs.ecs-task-container || github.event.repository.name }}
 
 jobs:
-  deploy:
+  deploy-build:
     name: Deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{inputs.java-version}}
+          distribution: "temurin"
+          cache: maven
+
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -37,23 +57,19 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: maven
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${GITHUB_SHA:0:7}
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
         run: |
           # Build a docker image and push it to ECR so that it can be deployed to ECS.
-          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          image = $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=$image
+          echo "image=$image" >> $GITHUB_OUTPUT
 
       - name: Download task definition
         run: |
