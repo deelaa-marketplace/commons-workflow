@@ -83,7 +83,7 @@ obs:
             echo "At least one of 'latest-release' or 'release-version' param is required"
             EXIT 2
           fi
-          release_image = $ECR_REGISTRY/$ECR_REPOSITORY:$RELEASE_TAG
+          release_image=$ECR_REGISTRY/$ECR_REPOSITORY:$RELEASE_TAG
           echo "$release_image"
           echo "image=$release_image" >> $GITHUB_OUTPUT
 

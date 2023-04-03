@@ -67,10 +67,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
         run: |
           # Build a docker image and push it to ECR so that it can be deployed to ECS.
-          IMAGE = ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-          echo "${IMAGE}"
-          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${IMAGE}
-          echo "image=${IMAGE}" >> $GITHUB_OUTPUT
+          build_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${build_image}
+          echo "image=${build_image}" >> $GITHUB_OUTPUT
 
       - name: Download task definition
         run: |
