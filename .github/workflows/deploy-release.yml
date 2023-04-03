@@ -37,7 +37,7 @@ env:
   CONTAINER_NAME: ${{ inputs.ecs-task-container || github.event.repository.name }}
   IMAGE_TAG: ${{ inputs.image-tag || github.event.repository.name }}
 
-obs:
+jobs:
   deploy-release:
     name: Deploy
     runs-on: ubuntu-latest
