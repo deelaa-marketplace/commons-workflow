@@ -64,12 +64,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
-          BASE_IMAGE: ${{ format('{0}:{1}-jre', 'registry://eclipse-temurin', inputs.java-version) }}
         run: |
           # Build a docker image and push it to ECR so that it can be deployed to ECS. 
           IMAGE_TAG=${GITHUB_SHA:0:7}
           build_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${build_image} -Djib.from.image=$BASE_IMAGE
+          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${build_image}
           echo "image=${build_image}" >> $GITHUB_OUTPUT
 
       - name: Download task definition
