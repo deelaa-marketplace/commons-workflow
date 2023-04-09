@@ -5,13 +5,17 @@ on:
     inputs:
       java-version:
         type: string
-        default: "17"
+        default: "20"
       allow-version-mismatch:
         type: boolean
         default: true
       skip-snapshots:
         type: boolean
         default: true
+      version:
+        type: string
+        description: 'Version: package version to publish'
+        required: true
 
 jobs:
   publish-package:
@@ -35,15 +39,17 @@ jobs:
       - name: Determine version
         id: version
         shell: bash
+        env:
         run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
-          echo "release_version=${{ github.event.release.tag_name }}#v" >> $GITHUB_OUTPUT
+          echo "release_version=${{ inputs.version }}#v" >> $GITHUB_OUTPUT
 
       - name: Print version
         shell: bash
+        env:
         run: |-
           echo "package_version=${{ steps.version.outputs.package_version }}" 
-          echo "release_version=${{ steps.version.outputs.release_version }}" 
+          echo "release_version=${{ steps.version.outputs.version }}" 
 
       - name: Publish
         if: ${{ inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version }}

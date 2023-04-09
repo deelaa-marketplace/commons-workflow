@@ -5,7 +5,7 @@ on:
     inputs:
       java-version:
         type: string
-        default: "17"
+        default: "20"
       api-files:
         type: string
         default: "src/main/resources/api-specification/"
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{inputs.java-version}}
           distribution: "temurin"
           cache: maven
 

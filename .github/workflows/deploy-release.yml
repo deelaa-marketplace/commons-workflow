@@ -3,9 +3,6 @@ name: Release to ECS
 on:
   workflow_call:
     inputs:
-      java-version:
-        type: string
-        default: "17"
       aws-region:
         type: string
         default: "eu-west-1"
