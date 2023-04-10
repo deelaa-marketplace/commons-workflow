@@ -68,6 +68,8 @@ jobs:
           RELEASE_TAG: ${{ inputs.release-version }}
           LATEST_RELEASE: ${{ inputs.latest-release || false }}
         run: |
+          echo "$LATEST_RELEASE" == true
+          echo "$LATEST_RELEASE"
           if [ "$LATEST_RELEASE" == true ]; then
             LATEST_TAG=$(aws ecr describe-images --repository-name ${ECR_REPOSITORY} --query 'reverse(sort_by(imageDetails,& imagePushedAt))[0].imageTags[0]' --output text)
             if [ ! -z "$RELEASE_TAG" ]; then
