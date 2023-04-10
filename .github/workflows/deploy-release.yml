@@ -66,7 +66,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           RELEASE_TAG: ${{ inputs.release-version }}
-          LATEST_RELEASE: ${{ inputs.latest-release }}
+          LATEST_RELEASE: ${{ inputs.latest-release || false }}
         run: |
           if [ "$LATEST_RELEASE" == true ]; then
             LATEST_TAG=$(aws ecr describe-images --repository-name ${ECR_REPOSITORY} --query 'reverse(sort_by(imageDetails,& imagePushedAt))[0].imageTags[0]' --output text)
