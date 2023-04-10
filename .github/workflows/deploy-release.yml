@@ -41,7 +41,7 @@ env:
 jobs:
   deploy-release:
     name: Deploy
-    if: ${{ inputs.restart-deployment || false }}
+    if: ${{ ! inputs.restart-deployment }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
