@@ -99,7 +99,7 @@ jobs:
 
   restart-deploy:
     name: Restart
-    if: ${{ inputs.restart-deployment }}
+    if: ${{ inputs.restart-deployment &&  inputs.restart-deployment != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
