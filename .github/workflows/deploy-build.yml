@@ -120,4 +120,4 @@ jobs:
 
       - name: Force Deployment
         run: |
-          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --cluster ${{ env.ECS_SERVICE }} --force-new-deployment
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment
