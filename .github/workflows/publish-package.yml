@@ -39,14 +39,12 @@ jobs:
       - name: Determine version
         id: version
         shell: bash
-        env:
         run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
           echo "release_version=${{ inputs.version }}#v" >> $GITHUB_OUTPUT
 
       - name: Print version
         shell: bash
-        env:
         run: |-
           echo "package_version=${{ steps.version.outputs.package_version }}" 
           echo "release_version=${{ steps.version.outputs.version }}" 
