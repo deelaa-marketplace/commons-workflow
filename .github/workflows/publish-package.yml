@@ -16,7 +16,7 @@ on:
       version:
         type: string
         description: 'Version: package version to publish other wise use the version in pom.xml'
-        default: ""
+        required: false
 
 jobs:
   publish-package:
@@ -51,7 +51,7 @@ jobs:
           echo "release_version=${{ steps.version.outputs.version }}" 
 
       - name: Publish
-        if: ${{ steps.version.outputs.release_version == "" || (inputs.validate-version  && steps.version.outputs.release_version == steps.version.outputs.package_version) }}
+        if: ${{ steps.version.outputs.release_version == '' || (inputs.validate-version  && steps.version.outputs.release_version == steps.version.outputs.package_version) }}
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests 
