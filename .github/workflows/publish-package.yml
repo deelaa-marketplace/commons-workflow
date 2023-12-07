@@ -6,16 +6,17 @@ on:
       java-version:
         type: string
         default: "20"
-      allow-version-mismatch:
-        type: boolean
-        default: true
       skip-snapshots:
         type: boolean
         default: true
+      validate-version:
+        type: boolean
+        description: 'Validate that version input matches the version in pom.xml'
+        default: true
       version:
         type: string
-        description: 'Version: package version to publish'
-        required: true
+        description: 'Version: package version to publish other wise use the version in pom.xml'
+        default: ""
 
 jobs:
   publish-package:
@@ -50,7 +51,7 @@ jobs:
           echo "release_version=${{ steps.version.outputs.version }}" 
 
       - name: Publish
-        if: ${{ inputs.allow-version-mismatch || steps.version.outputs.release_version == steps.version.outputs.package_version }}
+        if: ${{ steps.version.outputs.release_version == "" || (inputs.validate-version  && steps.version.outputs.release_version == steps.version.outputs.package_version) }}
         shell: bash
         run: >-
           mvn --batch-mode -DskipTests 
