@@ -43,6 +43,9 @@ jobs:
         run: |-
           echo "package_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
           $(release_version=${{ inputs.version }} && echo "release_version=${release_version#v}" >> $GITHUB_OUTPUT)
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
 
       - name: Print version
         shell: bash
