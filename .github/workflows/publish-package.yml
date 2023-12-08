@@ -33,51 +33,6 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Setup Maven Settings
-        uses: s4u/maven-settings-action@v2.8.0
-        with:
-          properties: |
-            [{
-              "profiles": {
-                "profile": [
-                  {
-                    "id": "deelaa-maven-central",
-                    "repositories": {
-                      "repository": {
-                        "id": "github",
-                        "name": "maven-central",
-                        "url": "https://maven.pkg.github.com/deelaa-marketplace/maven-central",
-                        "releases": {
-                          "enabled": "true",
-                          "updatePolicy": "never"
-                        },
-                        "snapshots": {
-                          "enabled": "false"
-                        }
-                      }
-                    }
-                  },
-                  {
-                    "id": "deelaa-maven-central-plugins",
-                    "pluginRepositories": {
-                      "pluginRepository": {
-                        "id": "github",
-                        "name": "maven-central",
-                        "url": "https://maven.pkg.github.com/deelaa-marketplace/maven-central",
-                        "releases": {
-                          "enabled": "true",
-                          "updatePolicy": "never"
-                        },
-                        "snapshots": {
-                          "enabled": "false"
-                        }
-                      }
-                    }
-                  }
-                ]
-              }
-            }]
-
       - name: Print Maven Settings
         shell: bash
         run: cat /home/runner/.m2/settings.xml

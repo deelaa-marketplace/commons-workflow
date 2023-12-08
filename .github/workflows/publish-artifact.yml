@@ -5,7 +5,7 @@ on:
     inputs:
       java-version:
         type: string
-        default: "20"
+        default: "21"
       api-files:
         type: string
         default: "src/main/resources/api-specification/"
@@ -77,7 +77,6 @@ jobs:
         with:
           files: ${{ inputs.messages-files }}
           dest: ${{ github.event.repository.name }}-messaging.zip
-
 
       - name: Publish Messages
         if: steps.changes.outputs.messages == 'true'

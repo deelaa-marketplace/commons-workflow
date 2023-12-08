@@ -5,7 +5,7 @@ on:
     inputs:
       java-version:
         type: string
-        default: "20"
+        default: "21"
       update-coverage-comment:
         type: boolean
         default: true
