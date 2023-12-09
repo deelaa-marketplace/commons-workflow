@@ -6,13 +6,13 @@ on:
       java-version:
         type: string
         default: "21"
-      api-path:
+      api-files:
         type: string
         default: "src/main/resources/api-specification/"
-      messages-path:
+      messages-files:
         type: string
         default: "src/main/resources/messages/"
-      distribution-repository:
+      target-repository:
         type: string
         default: "maven-central"
 
@@ -22,19 +22,19 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v3
 
-      - uses: dorny/paths-filter@v2.11.1
+      - uses: dorny/paths-filter@v2
         id: changes
         with:
           filters: |
             api:
-              - "${{ inputs.api-path }}**"
+              - "${{ inputs.api-files }}**"
             messages:
-              - "${{ inputs.messages-path }}**"
+              - "${{ inputs.messages-files }}**"
 
       - name: Setup Java
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@v3
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
@@ -53,11 +53,10 @@ jobs:
 
       - name: Bundle API
         if: steps.changes.outputs.api == 'true'
-        uses: thedoctor0/zip-release@0.7.5
+        uses: vimtor/action-zip@v1
         with:
-          type: 'zip'
-          filename: ${{ github.event.repository.name }}-api.zip
-          path: ${{ inputs.api-path }}
+          files: ${{ inputs.api-files }}
+          dest: ${{ github.event.repository.name }}-api.zip
 
       - name: Publish API
         if: steps.changes.outputs.api == 'true'
@@ -73,15 +72,14 @@ jobs:
           -Dpackaging="zip"
           -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-api.zip"
           -DrepositoryId="github"
-          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"
+          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"
 
       - name: Bundle Messages
         if: steps.changes.outputs.messages == 'true'
-        uses: thedoctor0/zip-release@0.7.5
+        uses: vimtor/action-zip@v1
         with:
-          type: 'zip'
-          filename: ${{ github.event.repository.name }}-messaging.zip
-          path: ${{ inputs.messages-path }}
+          files: ${{ inputs.messages-files }}
+          dest: ${{ github.event.repository.name }}-messaging.zip
 
       - name: Publish Messages
         if: steps.changes.outputs.messages == 'true'
@@ -97,4 +95,4 @@ jobs:
           -Dpackaging="zip"
           -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-messaging.zip"
           -DrepositoryId="github"
-          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"
+          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"

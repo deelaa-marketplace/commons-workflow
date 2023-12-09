@@ -6,10 +6,10 @@ on:
       java-version:
         type: string
         default: "21"
-      files:
+      path:
         type: string
         default: "src/main/resources/messages/"
-      target-repository:
+      distribution-repository:
         type: string
         default: "maven-central"
 
@@ -19,24 +19,28 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.1
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.0.0
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
           cache: maven
 
       - name: Bundle Messages
-        uses: vimtor/action-zip@v1
+        uses: thedoctor0/zip-release@0.7.5
         with:
-          files: ${{ inputs.files }}
-          dest: ${{ github.event.repository.name }}-messaging.zip
+          type: 'zip'
+          filename: ${{ github.event.repository.name }}-messaging.zip
+          path: ${{ inputs.path }}
 
       - name: Determine Artifact Details
         id: artifact
         shell: bash
+        env:
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
         run: |-
           echo "project_groupId=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)" >> $GITHUB_OUTPUT 
           echo "project_artifactId=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_OUTPUT
@@ -55,4 +59,4 @@ jobs:
           -Dpackaging="zip"
           -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-messaging.zip"
           -DrepositoryId="github"
-          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"
+          -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"
