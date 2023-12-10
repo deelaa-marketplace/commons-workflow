@@ -6,12 +6,12 @@ on:
       java-version:
         type: string
         default: "21"
-      api-path:
+      api-directory:
         type: string
-        default: "src/main/resources/api-specification/"
-      messages-path:
+        default: "src/main/resources/api-specification"
+      messages-direcory:
         type: string
-        default: "src/main/resources/messages/"
+        default: "src/main/resources/messages"
       distribution-repository:
         type: string
         default: "maven-central"
@@ -24,17 +24,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - uses: dorny/paths-filter@v2.11.1
+      - name: Determine Changes
+        uses: dorny/paths-filter@v2.11.1
         id: changes
         with:
           filters: |
             api:
-              - "${{ inputs.api-path }}**"
+              - "${{ inputs.api-directory }}/**"
             messages:
-              - "${{ inputs.messages-path }}**"
+              - "${{ inputs.messages-directory }}/**"
 
       - name: Setup Java
         uses: actions/setup-java@v4.0.0
+        if: steps.changes.outputs.api == 'true' || steps.changes.outputs.messages == 'true'
         with:
           java-version: ${{inputs.java-version}}
           distribution: "temurin"
@@ -57,7 +59,7 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ github.event.repository.name }}-api.zip
-          path: ${{ inputs.api-path }}
+          directory: ${{ inputs.api-directory }}
 
       - name: Publish API
         if: steps.changes.outputs.api == 'true'
@@ -71,7 +73,7 @@ jobs:
           -DartifactId="${{ steps.artifact.outputs.project_artifactId }}-api"
           -Dversion="${{ steps.artifact.outputs.project_version }}-${GITHUB_SHA:0:7}"
           -Dpackaging="zip"
-          -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-api.zip"
+          -Dfile="${{ github.workspace }}/${{ inputs.api-directory }}/${{ github.event.repository.name }}-api.zip"
           -DrepositoryId="github"
           -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"
 
@@ -81,7 +83,7 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ github.event.repository.name }}-messaging.zip
-          path: ${{ inputs.messages-path }}
+          directory: ${{ inputs.messages-directory }}
 
       - name: Publish Messages
         if: steps.changes.outputs.messages == 'true'
@@ -95,6 +97,6 @@ jobs:
           -DartifactId="${{ steps.artifact.outputs.project_artifactId }}-messaging"
           -Dversion="${{ steps.artifact.outputs.project_version }}-${GITHUB_SHA:0:7}"
           -Dpackaging="zip"
-          -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-messaging.zip"
+          -Dfile="${{ github.workspace }}/${{ inputs.messages-directory }}/${{ github.event.repository.name }}-messaging.zip"
           -DrepositoryId="github"
           -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"

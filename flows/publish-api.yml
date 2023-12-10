@@ -6,9 +6,9 @@ on:
       java-version:
         type: string
         default: "21"
-      path:
+      directory:
         type: string
-        default: "src/main/resources/api-specification/"
+        default: "src/main/resources/api-specification"
       distribution-repository:
         type: string
         default: "maven-central"
@@ -33,7 +33,7 @@ jobs:
         with:
           type: 'zip'
           filename: ${{ github.event.repository.name }}-api.zip
-          path: ${{ inputs.path }}
+          directory: ${{ inputs.directory }}
 
       - name: Determine Artifact Details
         id: artifact
@@ -57,6 +57,6 @@ jobs:
           -DartifactId="${{ steps.artifact.outputs.project_artifactId }}-api"
           -Dversion="${{ steps.artifact.outputs.project_version }}-${GITHUB_SHA:0:7}"
           -Dpackaging="zip"
-          -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-api.zip"
+          -Dfile="${{ github.workspace }}/${{ inputs.directory }}/${{ github.event.repository.name }}-api.zip"
           -DrepositoryId="github"
           -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.distribution-repository }}"

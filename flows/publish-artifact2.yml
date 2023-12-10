@@ -96,3 +96,25 @@ jobs:
           -Dfile="${{ github.workspace }}/${{ github.event.repository.name }}-messaging.zip"
           -DrepositoryId="github"
           -Durl="https://maven.pkg.github.com/${{ github.repository_owner }}/${{ inputs.target-repository }}"
+
+      - name: Publish Artifact
+        run: |
+          BUILD_NUMBER="${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}"
+          echo "${BUILD_NUMBER}"
+          VERSION="$(mvn -q -U -Dexpression=project.build.finalName help:evaluate -DforceStdout=true -DbuildNumber=${BUILD_NUMBER})"
+          echo "DIST_VERSION=${VERSION}" >> $GITHUB_ENV
+      - name: Create Tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const {DIST_VERSION} = process.env          
+            github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${DIST_VERSION}`,
+                sha: context.sha
+            })
+      - name: Tag published version
+        run: |
+          git tag -a v${{ needs.build.outputs.versionTag }} -m "Published version ${{ needs.build.outputs.versionTag }}" ${GITHUB_SHA}
+          git push origin v${{ needs.build.outputs.versionTag }}
