@@ -43,6 +43,7 @@ jobs:
           cache: maven
 
       - name: Determine Artifact Details
+        if: steps.changes.outputs.api == 'true' || steps.changes.outputs.messages == 'true'
         id: artifact
         shell: bash
         env:
