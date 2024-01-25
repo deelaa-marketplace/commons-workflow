@@ -9,7 +9,7 @@ on:
       api-directory:
         type: string
         default: "src/main/resources/api-specification"
-      messages-direcory:
+      messages-directory:
         type: string
         default: "src/main/resources/messages"
       distribution-repository:
