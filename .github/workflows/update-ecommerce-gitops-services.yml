@@ -71,5 +71,5 @@ jobs:
           git commit -m "Update image tag"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
 

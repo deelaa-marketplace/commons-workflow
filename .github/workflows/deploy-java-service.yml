@@ -26,7 +26,7 @@ on:
         required: false
         type: string
         default: "ecommerce"
-        
+
     outputs:
       service-name:
         description: "Name of the deployed service"
@@ -109,5 +109,4 @@ jobs:
       image-tag: ${{ needs.build-and-test.outputs.image-tag }}
       gitops-repo: ${{ inputs.gitops-repo }}
       namespace: ${{ inputs.namespace }}
-    secrets:
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+    secrets: inherit
