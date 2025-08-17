@@ -13,6 +13,9 @@ on:
         required: false
         type: string
         default: "21"
+      ecr-repository:
+        type: string
+        required: false
       gitops-repo:
         description: 'GitOps repository'
         required: false
@@ -41,6 +44,7 @@ on:
 env:
   
   AWS_REGION : "eu-west-1"  
+  ECR_REPOSITORY: ${{ inputs.ecr-repository || github.event.repository.name }}
 permissions:
       id-token: write
       contents: read
@@ -88,12 +92,15 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2.0.1
 
       - name: Build application
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
           GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
-          BASE_IMAGE: ${{ format('{0}:{1}-jre', 'registry://eclipse-temurin', inputs.java-version) }}
+          BASE_IMAGE: ${{ format('{0}:{1}-jre', 'registry://eclipse-temurin', inputs.java-version) }} 
         run: |
+          IMAGE_TAG=${GITHUB_SHA:0:7}
+          build_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${build_image} -Djib.from.image=$BASE_IMAGE
           echo "image=${build_image}" >> $GITHUB_OUTPUT
 
