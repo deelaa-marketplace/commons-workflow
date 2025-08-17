@@ -112,6 +112,7 @@ jobs:
 
   update-gitops:
     runs-on: ubuntu-latest
+    needs: build-and-test
     steps:
         - name: Update Service Image Tag
           run: |
@@ -120,7 +121,7 @@ jobs:
             NAMESPACE="${{ inputs.namespace }}"
 
             # Clone the GitOps repo
-            git clone https://x-access-token:${( secrets.PAT_TOKEN }}@github.com/deelaa-marketplace/ecommerce-gitops.git
+            git clone https://x-access-token:${PAT_TOKEN}@github.com/deelaa-marketplace/ecommerce-gitops.git
             cd ecommerce-gitops
             
             # Determine the correct path based on environment
