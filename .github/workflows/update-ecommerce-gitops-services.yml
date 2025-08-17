@@ -1,0 +1,78 @@
+name: Update Ecommerce GitOps Services
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        description: 'Name of the service to update'
+        required: true
+        type: string
+      image-tag:
+        description: 'New image tag to deploy'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (dev/prod)'
+        required: false
+        type: string
+        default: "dev"
+      gitops-repo:
+        description: 'GitOps repository'
+        required: false
+        type: string
+        default: "deelaa-marketplace/ecommerce-gitops"
+      namespace:
+        description: 'Kubernetes namespace'
+        required: false
+        type: string
+        default: "ecommerce"
+    secrets:
+      PAT_TOKEN:
+        description: 'Personal Access Token for GitOps repo'
+        required: true
+
+jobs:
+  update-gitops:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitOps Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.gitops-repo }}
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Update Service Image Tag
+        run: |
+          SERVICE_NAME="${{ inputs.service-name }}"
+          IMAGE_TAG="${{ inputs.image-tag }}"
+          ENVIRONMENT="${{ inputs.environment }}"
+          NAMESPACE="${{ inputs.namespace }}"
+          
+          # Determine the correct path based on environment
+          if [ "$ENVIRONMENT" = "prod" ]; then
+            SERVICE_PATH="clusters/prod/${NAMESPACE}/apps/${SERVICE_NAME}"
+          else
+            SERVICE_PATH="clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}"
+          fi
+          
+          # Check if service directory exists
+          if [ ! -d "$SERVICE_PATH" ]; then
+            echo "Error: Service directory $SERVICE_PATH does not exist"
+            exit 1
+          fi
+          # Update the image tag in kustomization.yaml
+          sed -i "s/newTag: .*/newTag: ${GITHUB_SHA:0:7}/" clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+
+          # Commit and push
+          git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+          git commit -m "Update image tag"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
