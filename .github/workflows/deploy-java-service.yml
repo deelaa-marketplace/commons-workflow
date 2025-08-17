@@ -114,34 +114,40 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
-        - name: Update Service Image Tag
-          run: |
-            SERVICE_NAME="${{ inputs.service-name }}"
-            ENVIRONMENT="${{ inputs.environment }}"
-            NAMESPACE="${{ inputs.namespace }}"
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
 
-            # Clone the GitOps repo
-            git clone https://x-access-token:${PAT_TOKEN}@github.com/deelaa-marketplace/ecommerce-gitops.git
-            cd ecommerce-gitops
-            
-            # Determine the correct path based on environment
-            if [ "$ENVIRONMENT" = "prod" ]; then
-              SERVICE_PATH="clusters/prod/${NAMESPACE}/apps/${SERVICE_NAME}"
-            else
-              SERVICE_PATH="clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}"
-            fi
-            
-            # Check if service directory exists
-            if [ ! -d "$SERVICE_PATH" ]; then
-              echo "Error: Service directory $SERVICE_PATH does not exist"
-              exit 1
-            fi
-            # Update the image tag in kustomization.yaml
-            sed -i "s/newTag: .*/newTag: ${GITHUB_SHA:0:7}/" clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+      - name: Update Service Image Tag
+        run: |
+          SERVICE_NAME="${{ inputs.service-name }}"
+          ENVIRONMENT="${{ inputs.environment }}"
+          NAMESPACE="${{ inputs.namespace }}"
 
-            # Commit and push
-            git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
-            git commit -m "Update image tag"
-            git push
-          env:
-            PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          # Clone the GitOps repo
+          git clone https://x-access-token:${PAT_TOKEN}@github.com/deelaa-marketplace/ecommerce-gitops.git
+          cd ecommerce-gitops
+          
+          # Determine the correct path based on environment
+          if [ "$ENVIRONMENT" = "prod" ]; then
+            SERVICE_PATH="clusters/prod/${NAMESPACE}/apps/${SERVICE_NAME}"
+          else
+            SERVICE_PATH="clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}"
+          fi
+          
+          # Check if service directory exists
+          if [ ! -d "$SERVICE_PATH" ]; then
+            echo "Error: Service directory $SERVICE_PATH does not exist"
+            exit 1
+          fi
+          # Update the image tag in kustomization.yaml
+          sed -i "s/newTag: .*/newTag: ${GITHUB_SHA:0:7}/" clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+
+          # Commit and push
+          git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+          git commit -m "Update image tag"
+          git push
+        env:
+          PAT_TOKEN: "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"
+          # PAT_TOKEN: {{ secrets.PAT_TOKEN }}
