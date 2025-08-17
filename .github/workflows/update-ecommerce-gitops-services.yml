@@ -26,10 +26,7 @@ on:
         required: false
         type: string
         default: "ecommerce"
-    secrets:
-      PAT_TOKEN:
-        description: 'Personal Access Token for GitOps repo'
-        required: true
+
 
 jobs:
   update-gitops:
