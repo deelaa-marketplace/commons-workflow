@@ -26,6 +26,15 @@ on:
         required: false
         type: string
         default: "ecommerce"
+      image-tag:
+        description: 'New image tag to deploy'
+        required: true
+        type: string
+      environment:
+        description: 'Target environment (dev/prod)'
+        required: false
+        type: string
+        default: "dev"
 
     outputs:
       service-name:
@@ -102,11 +111,37 @@ jobs:
           echo "image=${build_image}" >> $GITHUB_OUTPUT
 
   update-gitops:
-    needs: build-and-test
-    uses: ./.github/workflows/update-ecommerce-gitops-services.yml
-    with:
-      service-name: ${{ needs.build-and-test.outputs.service-name }}
-      image-tag: ${{ needs.build-and-test.outputs.image-tag }}
-      gitops-repo: ${{ inputs.gitops-repo }}
-      namespace: ${{ inputs.namespace }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+        - name: Update Service Image Tag
+          run: |
+            SERVICE_NAME="${{ inputs.service-name }}"
+            IMAGE_TAG="${{ inputs.image-tag }}"
+            ENVIRONMENT="${{ inputs.environment }}"
+            NAMESPACE="${{ inputs.namespace }}"
+
+            # Clone the GitOps repo
+            git clone https://x-access-token:${( secrets.PAT_TOKEN }}@github.com/deelaa-marketplace/ecommerce-gitops.git
+            cd ecommerce-gitops
+            
+            # Determine the correct path based on environment
+            if [ "$ENVIRONMENT" = "prod" ]; then
+              SERVICE_PATH="clusters/prod/${NAMESPACE}/apps/${SERVICE_NAME}"
+            else
+              SERVICE_PATH="clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}"
+            fi
+            
+            # Check if service directory exists
+            if [ ! -d "$SERVICE_PATH" ]; then
+              echo "Error: Service directory $SERVICE_PATH does not exist"
+              exit 1
+            fi
+            # Update the image tag in kustomization.yaml
+            sed -i "s/newTag: .*/newTag: ${GITHUB_SHA:0:7}/" clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+
+            # Commit and push
+            git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
+            git commit -m "Update image tag"
+            git push
+          env:
+            PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
