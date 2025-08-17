@@ -1,0 +1,109 @@
+name: Deploy Java Service to K3s
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        description: 'Name of the service to deploy'
+        required: false
+        type: string
+        default: ${{ github.event.repository.name }}
+      java-version:
+        description: 'Java version to use'
+        required: false
+        type: string
+        default: "21"
+      gitops-repo:
+        description: 'GitOps repository'
+        required: false
+        type: string
+        default: "deelaa-marketplace/ecommerce-gitops"
+      namespace:
+        description: 'Kubernetes namespace'
+        required: false
+        type: string
+        default: "ecommerce"
+    secrets:
+      PAT_TOKEN:
+        description: 'Personal Access Token for GitOps repo'
+        required: true
+    outputs:
+      service-name:
+        description: "Name of the deployed service"
+        value: ${{ jobs.build-and-test.outputs.service-name }}
+      image-tag:
+        description: "Image tag that was deployed"
+        value: ${{ jobs.build-and-test.outputs.image-tag }}
+      environment:
+        description: "Environment that was deployed to"
+        value: ${{ jobs.build-and-test.outputs.environment }}
+
+env:
+  
+  AWS_REGION : "eu-west-1"  
+permissions:
+      id-token: write
+      contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      service-name: ${{ steps.vars.outputs.service-name }}
+      image-tag: ${{ steps.vars.outputs.short-sha }}
+      environment: ${{ steps.vars.outputs.environment }}
+      branch-name: ${{ steps.vars.outputs.branch-name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up variables
+        id: vars
+        run: |
+          SERVICE_NAME="${{ inputs.service-name }}"
+          if [ -z "$SERVICE_NAME" ]; then
+            SERVICE_NAME="${{ github.event.repository.name }}"
+          fi
+          
+          echo "service-name=${SERVICE_NAME}" >> $GITHUB_OUTPUT
+          echo "short-sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "branch-name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: 'temurin'
+          cache: maven
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::886129832542:role/github-actions-deployment-role
+          role-session-name: Service_Deployment
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2.0.1
+
+      - name: Build application
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          GITHUB_ACTOR: ${{ secrets.GIT_AGENT_USER }}
+          GITHUB_TOKEN: ${{ secrets.GIT_AGENT_TOKEN }}
+          BASE_IMAGE: ${{ format('{0}:{1}-jre', 'registry://eclipse-temurin', inputs.java-version) }}
+        run: |
+          mvn package com.google.cloud.tools:jib-maven-plugin:build -Dimage=${build_image} -Djib.from.image=$BASE_IMAGE
+          echo "image=${build_image}" >> $GITHUB_OUTPUT
+
+  update-gitops:
+    needs: build-and-test
+    uses: ./.github/workflows/update-ecommerce-gitops-services.yml
+    with:
+      service-name: ${{ needs.build-and-test.outputs.service-name }}
+      image-tag: ${{ needs.build-and-test.outputs.image-tag }}
+      gitops-repo: ${{ inputs.gitops-repo }}
+      namespace: ${{ inputs.namespace }}
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
