@@ -32,12 +32,12 @@ jobs:
   update-gitops:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout GitOps Repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.gitops-repo }}
-          token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0
+      # - name: Checkout GitOps Repository
+      #   uses: actions/checkout@v4
+      #   # with:
+      #   #   repository: ${{ inputs.gitops-repo }}
+      #   #   token: ${{ secrets.PAT_TOKEN }}
+      #   #   fetch-depth: 0
 
       - name: Configure Git
         run: |
@@ -50,6 +50,10 @@ jobs:
           IMAGE_TAG="${{ inputs.image-tag }}"
           ENVIRONMENT="${{ inputs.environment }}"
           NAMESPACE="${{ inputs.namespace }}"
+
+          # Clone the GitOps repo
+          git clone https://x-access-token:${( secrets.PAT_TOKEN }}@github.com/deelaa-marketplace/ecommerce-gitops.git
+          cd ecommerce-gitops
           
           # Determine the correct path based on environment
           if [ "$ENVIRONMENT" = "prod" ]; then
