@@ -26,10 +26,10 @@ on:
         required: false
         type: string
         default: "ecommerce"
-      image-tag:
-        description: 'New image tag to deploy'
-        required: true
-        type: string
+      # image-tag:
+      #   description: 'New image tag to deploy'
+      #   required: true
+      #   type: string
       environment:
         description: 'Target environment (dev/prod)'
         required: false
@@ -116,7 +116,6 @@ jobs:
         - name: Update Service Image Tag
           run: |
             SERVICE_NAME="${{ inputs.service-name }}"
-            IMAGE_TAG="${{ inputs.image-tag }}"
             ENVIRONMENT="${{ inputs.environment }}"
             NAMESPACE="${{ inputs.namespace }}"
 
