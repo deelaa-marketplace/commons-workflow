@@ -114,6 +114,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
+      - name: Checkout private tools
+        uses: actions/checkout@v3
+        with:
+          repository: deelaa-marketplace/ecommerce-gitops
+          token: "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"
+          path: ecommerce-gitops
+
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions Bot"
@@ -125,9 +132,9 @@ jobs:
           ENVIRONMENT="${{ inputs.environment }}"
           NAMESPACE="${{ inputs.namespace }}"
 
-          # Clone the GitOps repo
-          git clone https://x-access-token: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@github.com/deelaa-marketplace/ecommerce-gitops.git
-          cd ecommerce-gitops
+          # # Clone the GitOps repo
+          # git clone https://x-access-token:"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"@github.com/deelaa-marketplace/ecommerce-gitops.git
+          # cd ecommerce-gitops
           
           # Determine the correct path based on environment
           if [ "$ENVIRONMENT" = "prod" ]; then
@@ -148,6 +155,6 @@ jobs:
           git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
           git commit -m "Update image tag"
           git push
-        env:
-          GITHUB_TOKEN: "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"
+        # env:
+        #   GITHUB_TOKEN: "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"
           # PAT_TOKEN: {{ secrets.PAT_TOKEN }}
