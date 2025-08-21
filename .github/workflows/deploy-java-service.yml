@@ -132,11 +132,9 @@ jobs:
           ENVIRONMENT="${{ inputs.environment }}"
           NAMESPACE="${{ inputs.namespace }}"
 
-          # # Clone the GitOps repo
-          # git clone https://x-access-token:${PAT_TOKEN}@github.com/deelaa-marketplace/ecommerce-gitops.git
+          # Update deployment file in the GitOps repo
           cd ecommerce-gitops
           
-          # Determine the correct path based on environment
           if [ "$ENVIRONMENT" = "prod" ]; then
             SERVICE_PATH="clusters/prod/${NAMESPACE}/apps/${SERVICE_NAME}"
           else
@@ -148,10 +146,10 @@ jobs:
             echo "Error: Service directory $SERVICE_PATH does not exist"
             exit 1
           fi
-          # Update the image tag in kustomization.yaml
+
           sed -i "s/newTag: .*/newTag: ${GITHUB_SHA:0:7}/" clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
 
-          # Commit and push
+
           git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
           git commit -m "Update image tag"
           git push
