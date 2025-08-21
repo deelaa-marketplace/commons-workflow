@@ -118,7 +118,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: deelaa-marketplace/ecommerce-gitops
-          token: "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"
+          token: ${{ secrets.PAT_TOKEN }}
           path: ecommerce-gitops
 
       - name: Configure Git
@@ -133,8 +133,8 @@ jobs:
           NAMESPACE="${{ inputs.namespace }}"
 
           # # Clone the GitOps repo
-          # git clone https://x-access-token:"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"@github.com/deelaa-marketplace/ecommerce-gitops.git
-          # cd ecommerce-gitops
+          # git clone https://x-access-token:${PAT_TOKEN}@github.com/deelaa-marketplace/ecommerce-gitops.git
+          cd ecommerce-gitops
           
           # Determine the correct path based on environment
           if [ "$ENVIRONMENT" = "prod" ]; then
@@ -155,6 +155,5 @@ jobs:
           git add clusters/dev/${NAMESPACE}/apps/${SERVICE_NAME}/kustomization.yaml
           git commit -m "Update image tag"
           git push
-        # env:
-        #   GITHUB_TOKEN: "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"
-          # PAT_TOKEN: {{ secrets.PAT_TOKEN }}
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
